@@ -11,6 +11,7 @@ from matplotlib.patches import Rectangle
 from itertools import product
 import argparse
 from utils.grid import Grid
+from utils.dubins_path import DubinsPath
 from utils.car import SimpleCar
 from utils.environment import Environment_robplan
 from utils.reeds_shepp import RSPath
@@ -50,6 +51,7 @@ class HybridAstar:
             self.comb = list(product([1], self.phil))
 
         self.RSPath = RSPath(self.car)  
+        self.dubins = DubinsPath(car,False)
         self.astar = Astar(self.grid, self.goal[:2])
         
         self.w1 = 0.95 # weight for astar heuristic
@@ -159,7 +161,10 @@ class HybridAstar:
 
         for t in range(min(n, len(open_))):
             best_ = open_[t]
-            d_route_, cost_, valid_ = self.RSPath.get_best_path(best_.pos,self.goal)
+            solutions_ = self.dubins.find_tangents(best_.pos,self.goal)
+            d_route_, cost_, valid_ = self.dubins.best_tangent(solutions_)
+            if not valid_:
+                d_route_, cost_, valid_ = self.RSPath.get_best_path(best_.pos,self.goal)
         
             if valid_ and cost_ + best_.g_ < cost + best.g_:
                 best = best_
@@ -216,8 +221,10 @@ class HybridAstar:
             closed_.append(best)
 
             # check RS path
-                
-            d_route, cost, valid = self.RSPath.get_best_path(best.pos,self.goal)
+            solutions = self.dubins.find_tangents(best.pos,self.goal)
+            d_route, cost, valid = self.dubins.best_tangent(solutions)
+            if valid == False:
+                d_route, cost, valid = self.RSPath.get_best_path(best.pos,self.goal)
                 
             if valid:
                 best, cost, d_route = self.best_final_shot(open_, closed_, best, cost, d_route)
@@ -353,72 +360,72 @@ def main_hybrid_a(heu,start_pos, end_pos,reverse, extra, grid_on):
 
         return _branches, _path, _carl, _path1, _car
 
-    # def animate(i):
-    #     edgecolor = ['k']*5 + ['r']
-    #     facecolor = ['y'] + ['k']*4 + ['r']
+    def animate(i):
+        edgecolor = ['k']*5 + ['r']
+        facecolor = ['y'] + ['k']*4 + ['r']
         
-    #     # Only update path-related elements
-    #     j = min(i, len(path)-1)  # Ensure we don't exceed path length
+        # Only update path-related elements
+        j = min(i, len(path)-1)  # Ensure we don't exceed path length
         
-    #     _path.set_data(xl[:j+1], yl[:j+1])
+        _path.set_data(xl[:j+1], yl[:j+1])
         
-    #     sub_carl = carl[:j+1]
-    #     _carl.set_paths(sub_carl[::4])
-    #     _carl.set_edgecolor('k')
-    #     _carl.set_facecolor('m')
-    #     _carl.set_alpha(0.1)
-    #     _carl.set_zorder(3)
+        sub_carl = carl[:j+1]
+        _carl.set_paths(sub_carl[::4])
+        _carl.set_edgecolor('k')
+        _carl.set_facecolor('m')
+        _carl.set_alpha(0.1)
+        _carl.set_zorder(3)
 
-    #     _path1.set_data(xl[:j+1], yl[:j+1])
-    #     _path1.set_zorder(3)
+        _path1.set_data(xl[:j+1], yl[:j+1])
+        _path1.set_zorder(3)
 
-    #     _car.set_paths(path[j].model)
-    #     _car.set_edgecolor(edgecolor)
-    #     _car.set_facecolor(facecolor)
-    #     _car.set_zorder(3)
+        _car.set_paths(path[j].model)
+        _car.set_edgecolor(edgecolor)
+        _car.set_facecolor(facecolor)
+        _car.set_zorder(3)
 
-    #     return _path, _carl, _path1, _car
+        return _path, _carl, _path1, _car
 
-    # ani = animation.FuncAnimation(fig, animate, init_func=init, frames=len(path),
-    #                             interval=1, repeat=True, blit=True)
+    ani = animation.FuncAnimation(fig, animate, init_func=init, frames=len(path),
+                                interval=100, repeat=True, blit=True)
 
     # plt.show() 
 
-    def animate(i):
+    # def animate(i):
 
-        edgecolor = ['k']*5 + ['r']
-        facecolor = ['y'] + ['k']*4 + ['r']
+    #     edgecolor = ['k']*5 + ['r']
+    #     facecolor = ['y'] + ['k']*4 + ['r']
 
-        if i < len(branches):
-            _branches.set_paths(branches[:i+1])
-            _branches.set_color(bcolors)
+    #     if i < len(branches):
+    #         _branches.set_paths(branches[:i+1])
+    #         _branches.set_color(bcolors)
         
-        else:
-            _branches.set_paths(branches)
+    #     else:
+    #         _branches.set_paths(branches)
 
-            j = i - len(branches)
+    #         j = i - len(branches)
 
-            _path.set_data(xl[min(j, len(path)-1):], yl[min(j, len(path)-1):])
+    #         _path.set_data(xl[min(j, len(path)-1):], yl[min(j, len(path)-1):])
 
-            sub_carl = carl[:min(j+1, len(path))]
-            _carl.set_paths(sub_carl[::4])
-            _carl.set_edgecolor('k')
-            _carl.set_facecolor('m')
-            _carl.set_alpha(0.1)
-            _carl.set_zorder(3)
+    #         sub_carl = carl[:min(j+1, len(path))]
+    #         _carl.set_paths(sub_carl[::4])
+    #         _carl.set_edgecolor('k')
+    #         _carl.set_facecolor('m')
+    #         _carl.set_alpha(0.1)
+    #         _carl.set_zorder(3)
 
-            _path1.set_data(xl[:min(j+1, len(path))], yl[:min(j+1, len(path))])
-            _path1.set_zorder(3)
+    #         _path1.set_data(xl[:min(j+1, len(path))], yl[:min(j+1, len(path))])
+    #         _path1.set_zorder(3)
 
-            _car.set_paths(path[min(j, len(path)-1)].model)
-            _car.set_edgecolor(edgecolor)
-            _car.set_facecolor(facecolor)
-            _car.set_zorder(3)
+    #         _car.set_paths(path[min(j, len(path)-1)].model)
+    #         _car.set_edgecolor(edgecolor)
+    #         _car.set_facecolor(facecolor)
+    #         _car.set_zorder(3)
 
-        return _branches, _path, _carl, _path1, _car
+    #     return _branches, _path, _carl, _path1, _car
 
-    ani = animation.FuncAnimation(fig, animate, init_func=init, frames=frames,
-                                  interval=200, repeat=True, blit=True)
+    # ani = animation.FuncAnimation(fig, animate, init_func=init, frames=frames,
+    #                               interval=200, repeat=True, blit=True)
 
     
     plt.show()
@@ -488,6 +495,6 @@ if __name__ == '__main__':
     p.add_argument('-g', action='store_true', help='show grid or not')
     args = p.parse_args()
     start_pos = [0.3, 0.3, 0]      # Here defined initial position [x,y,angle]
-    end_pos = [4, 2, pi/2] # Target point [x,y, angle]
+    end_pos = [3.7, 2.2, -pi/2]     # Target point [x,y, angle]
     main_hybrid_a(args.heu,start_pos,end_pos,True,False,True)
     print("An optimal path was computed using hybrid A* algorithm")
