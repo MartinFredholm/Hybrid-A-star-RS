@@ -8,6 +8,7 @@ Inspiration from NathanLTC: https://github.com/nathanlct/reeds-shepp-curves
 """
 
 import numpy as np
+from math import cos, sin, atan2, pi, sqrt
 from enum import Enum
 from dataclasses import dataclass, replace
 from utils.rs_utils import *
@@ -116,7 +117,7 @@ class RSPath():
         """
         path = []
 
-        u, t = cart2polar(x - np.sin(phi), y - 1 + np.cos(phi))
+        u, t = cart2polar(x - sin(phi), y - 1 + cos(phi))
         v = M(phi - t)
 
         path.append(PathElement.create(t, Turn.LEFT, Gear.FORWARD))
@@ -133,11 +134,11 @@ class RSPath():
         phi = M(phi)
         path = []
 
-        rho, pos1 = cart2polar(x + np.sin(phi), y - 1 - np.cos(phi))
+        rho, pos1 = cart2polar(x + sin(phi), y - 1 - cos(phi))
 
         if rho * rho >= 4:
-            u = np.sqrt(rho * rho - 4)
-            t = M(pos1 + np.atan2(2, u))
+            u = sqrt(rho * rho - 4)
+            t = M(pos1 + atan2(2, u))
             v = M(t - phi)
 
             path.append(PathElement.create(t, Turn.LEFT, Gear.FORWARD))
@@ -154,14 +155,14 @@ class RSPath():
         """
         path = []
 
-        xi = x - np.sin(phi)
-        eta = y - 1 + np.cos(phi)
+        xi = x - sin(phi)
+        eta = y - 1 + cos(phi)
         rho, theta = cart2polar(xi, eta)
 
         if rho <= 4:
-            A = np.acos(rho / 4)
-            t = M(theta + np.pi/2 + A)
-            u = M(np.pi - 2*A)
+            A = np.arccos(rho / 4)
+            t = M(theta + pi/2 + A)
+            u = M(pi - 2*A)
             v = M(phi - t - u)
             
             path.append(PathElement.create(t, Turn.LEFT, Gear.FORWARD))
@@ -177,14 +178,14 @@ class RSPath():
         """
         path = []
 
-        xi = x - np.sin(phi)
-        eta = y - 1 + np.cos(phi)
+        xi = x - sin(phi)
+        eta = y - 1 + cos(phi)
         rho, theta = cart2polar(xi, eta)
 
         if rho <= 4:
-            A = np.acos(rho / 4)
-            t = M(theta + np.pi/2 + A)
-            u = M(np.pi - 2*A)
+            A = np.arccos(rho / 4)
+            t = M(theta + pi/2 + A)
+            u = M(pi - 2*A)
             v = M(t + u - phi)
 
             path.append(PathElement.create(t, Turn.LEFT, Gear.FORWARD))
@@ -201,19 +202,19 @@ class RSPath():
         """
         path = []
 
-        xi = x - np.sin(phi)
-        eta = y - 1 + np.cos(phi)
+        xi = x - sin(phi)
+        eta = y - 1 + cos(phi)
         rho, theta = cart2polar(xi, eta)
 
         if rho <= 4:
-            u = np.acos(1 - rho*rho/8)
+            u = np.arccos(1 - rho*rho/8)
            
             if rho > 0:
-                A = np.asin(2 * np.sin(u) / rho)
+                A = np.arcsin(2 * sin(u) / rho)
             else:
                 A = 0
 
-            t = M(theta + np.pi/2 - A)
+            t = M(theta + pi/2 - A)
             v = M(t - u - phi)
 
             path.append(PathElement.create(t, Turn.LEFT, Gear.FORWARD))
@@ -229,20 +230,20 @@ class RSPath():
         """
         path = []
 
-        xi = x + np.sin(phi)
-        eta = y - 1 - np.cos(phi)
+        xi = x + sin(phi)
+        eta = y - 1 - cos(phi)
         rho, theta = cart2polar(xi, eta)
 
         if rho <= 4:
             if rho <= 2:
-                A = np.acos((rho + 2) / 4)
-                t = M(theta + np.pi/2 + A)
+                A = np.arccos((rho + 2) / 4)
+                t = M(theta + pi/2 + A)
                 u = M(A)
                 v = M(phi - t + 2*u)
             else:
-                A = np.acos((rho - 2) / 4)
-                t = M(theta + np.pi/2 - A)
-                u = M(np.pi - A)
+                A = np.arccos((rho - 2) / 4)
+                t = M(theta + pi/2 - A)
+                u = M(pi - A)
                 v = M(phi - t + 2*u)
 
             path.append(PathElement.create(t, Turn.LEFT, Gear.FORWARD))
@@ -260,18 +261,18 @@ class RSPath():
         """
         path = []
 
-        xi = x + np.sin(phi)
-        eta = y - 1 - np.cos(phi)
+        xi = x + sin(phi)
+        eta = y - 1 - cos(phi)
         rho, theta = cart2polar(xi, eta)
         u1 = (20 - rho*rho) / 16
 
         if rho <= 6 and 0 <= u1 <= 1:
-            u = np.acos(u1)
+            u = np.arccos(u1)
             if rho > 0:
-                A = np.asin(2 * np.sin(u) / rho)
+                A = np.arcsin(2 * sin(u) / rho)
             else:
                 A = 0
-            t = M(theta + np.pi/2 + A)
+            t = M(theta + pi/2 + A)
             v = M(t - phi)
 
             path.append(PathElement.create(t, Turn.LEFT, Gear.FORWARD))
@@ -289,18 +290,18 @@ class RSPath():
         """
         path = []
 
-        xi = x - np.sin(phi)
-        eta = y - 1 + np.cos(phi)
+        xi = x - sin(phi)
+        eta = y - 1 + cos(phi)
         rho, theta = cart2polar(xi, eta)
 
         if rho >= 2:
-            u = np.sqrt(rho*rho - 4) - 2
-            A = np.atan2(2, u+2)
-            t = M(theta + np.pi/2 + A)
-            v = M(t - phi + np.pi/2)
+            u = sqrt(rho*rho - 4) - 2
+            A = atan2(2, u+2)
+            t = M(theta + pi/2 + A)
+            v = M(t - phi + pi/2)
 
             path.append(PathElement.create(t, Turn.LEFT, Gear.FORWARD))
-            path.append(PathElement.create(np.pi/2, Turn.RIGHT, Gear.BACKWARD))
+            path.append(PathElement.create(pi/2, Turn.RIGHT, Gear.BACKWARD))
             path.append(PathElement.create(u, Turn.STRAIGHT, Gear.BACKWARD))
             path.append(PathElement.create(v, Turn.LEFT, Gear.BACKWARD))
 
@@ -313,19 +314,19 @@ class RSPath():
         """
         path = []
 
-        xi = x - np.sin(phi)
-        eta = y - 1 + np.cos(phi)
+        xi = x - sin(phi)
+        eta = y - 1 + cos(phi)
         rho, theta = cart2polar(xi, eta)
 
         if rho >= 2:
-            u = np.sqrt(rho*rho - 4) - 2
-            A = np.atan2(u+2, 2)
-            t = M(theta + np.pi/2 - A)
-            v = M(t - phi - np.pi/2)
+            u = sqrt(rho*rho - 4) - 2
+            A = atan2(u+2, 2)
+            t = M(theta + pi/2 - A)
+            v = M(t - phi - pi/2)
 
             path.append(PathElement.create(t, Turn.LEFT, Gear.FORWARD))
             path.append(PathElement.create(u, Turn.STRAIGHT, Gear.FORWARD))
-            path.append(PathElement.create(np.pi/2, Turn.RIGHT, Gear.FORWARD))
+            path.append(PathElement.create(pi/2, Turn.RIGHT, Gear.FORWARD))
             path.append(PathElement.create(v, Turn.LEFT, Gear.BACKWARD))
 
         
@@ -338,17 +339,17 @@ class RSPath():
         """
         path = []
 
-        xi = x + np.sin(phi)
-        eta = y - 1 - np.cos(phi)
+        xi = x + sin(phi)
+        eta = y - 1 - cos(phi)
         rho, theta = cart2polar(xi, eta)
 
         if rho >= 2:
-            t = M(theta + np.pi/2)
+            t = M(theta + pi/2)
             u = rho - 2
-            v = M(phi - t - np.pi/2)
+            v = M(phi - t - pi/2)
 
             path.append(PathElement.create(t, Turn.LEFT, Gear.FORWARD))
-            path.append(PathElement.create(np.pi/2, Turn.RIGHT, Gear.BACKWARD))
+            path.append(PathElement.create(pi/2, Turn.RIGHT, Gear.BACKWARD))
             path.append(PathElement.create(u, Turn.STRAIGHT, Gear.BACKWARD))
             path.append(PathElement.create(v, Turn.RIGHT, Gear.BACKWARD))
 
@@ -362,18 +363,18 @@ class RSPath():
         """
         path = []
 
-        xi = x + np.sin(phi)
-        eta = y - 1 - np.cos(phi)
+        xi = x + sin(phi)
+        eta = y - 1 - cos(phi)
         rho, theta = cart2polar(xi, eta)
 
         if rho >= 2:
             t = M(theta)
             u = rho - 2
-            v = M(phi - t - np.pi/2)
+            v = M(phi - t - pi/2)
 
             path.append(PathElement.create(t, Turn.LEFT, Gear.FORWARD))
             path.append(PathElement.create(u, Turn.STRAIGHT, Gear.FORWARD))
-            path.append(PathElement.create(np.pi/2, Turn.LEFT, Gear.FORWARD))
+            path.append(PathElement.create(pi/2, Turn.LEFT, Gear.FORWARD))
             path.append(PathElement.create(v, Turn.RIGHT, Gear.BACKWARD))
 
         
@@ -386,26 +387,26 @@ class RSPath():
         """
         path = []
 
-        xi = x + np.sin(phi)
-        eta = y - 1 - np.cos(phi)
+        xi = x + sin(phi)
+        eta = y - 1 - cos(phi)
         rho, theta = cart2polar(xi, eta)
 
         if rho >= 4:
-            u = np.sqrt(rho*rho - 4) - 4
-            A = np.atan2(2, u+4)
-            t = M(theta + np.pi/2 + A)
+            u = sqrt(rho*rho - 4) - 4
+            A = atan2(2, u+4)
+            t = M(theta + pi/2 + A)
             v = M(t - phi)
 
             path.append(PathElement.create(t, Turn.LEFT, Gear.FORWARD))
-            path.append(PathElement.create(np.pi/2, Turn.RIGHT, Gear.BACKWARD))
+            path.append(PathElement.create(pi/2, Turn.RIGHT, Gear.BACKWARD))
             path.append(PathElement.create(u, Turn.STRAIGHT, Gear.BACKWARD))
-            path.append(PathElement.create(np.pi/2, Turn.LEFT, Gear.BACKWARD))
+            path.append(PathElement.create(pi/2, Turn.LEFT, Gear.BACKWARD))
             path.append(PathElement.create(v, Turn.RIGHT, Gear.FORWARD))
 
         
         return path
     
-    def get_route(self, path : list[PathElement], start):        
+    def get_route(self, path : list, start):        
         
         phi_list :list= []
         goal_list :list= []
@@ -420,16 +421,16 @@ class RSPath():
                 
                 x = e.gear.value*e.lenght
                
-                pose[0] = pose[0]+x*np.cos(theta)
-                pose[1] = pose[1]+x*np.sin(theta)
+                pose[0] = pose[0]+x*cos(theta)
+                pose[1] = pose[1]+x*sin(theta)
             else:
                 theta = pose[2]
                 
-                x = np.sin(e.gear.value*e.lenght)
-                y = e.turn.value-np.cos(e.lenght+np.pi/2-e.turn.value*np.pi/2)           
+                x = sin(e.gear.value*e.lenght)
+                y = e.turn.value-cos(e.lenght+pi/2-e.turn.value*pi/2)           
 
-                pose[0]=pose[0]+np.cos(theta)*x-np.sin(theta)*y
-                pose[1]=pose[1]+np.sin(theta)*x+np.cos(theta)*y
+                pose[0]=pose[0]+cos(theta)*x-sin(theta)*y
+                pose[1]=pose[1]+sin(theta)*x+cos(theta)*y
 
                 pose[2] = M(theta + e.gear.value*e.turn.value*e.lenght)
             
@@ -468,7 +469,7 @@ class RSPath():
                     x = current[0]
                     y = current[1]
                     theta = current[2]
-                    circ_center = [x-s[i].turn.value*self.r*np.sin(theta),y+s[i].turn.value*np.cos(theta)*self.r]
+                    circ_center = [x-s[i].turn.value*self.r*sin(theta),y+s[i].turn.value*cos(theta)*self.r]
                     
                     if route[i][2] < 0:           
                         safe = self.is_turning_route_safe(route[i][0], current, np.sign(route[i][1]), circ_center, self.r)
@@ -477,6 +478,7 @@ class RSPath():
                     current = route[i][0]
                     
                 if not safe:
+                    
                     break
             
             if safe:
@@ -536,18 +538,18 @@ class RSPath():
         v_outer = [p_outer[0]-c[0], p_outer[1]-c[1]]
 
         if d == -1:
-            end_inner = np.atan2(v_inner[1], v_inner[0]) % (2*np.pi)
-            start_inner = (end_inner + delta_theta) % (2*np.pi)
+            end_inner = atan2(v_inner[1], v_inner[0]) % (2*pi)
+            start_inner = (end_inner + delta_theta) % (2*pi)
 
-            end_outer = np.atan2(v_outer[1], v_outer[0]) % (2*np.pi)
-            start_outer = (end_outer + delta_theta) % (2*np.pi)
+            end_outer = atan2(v_outer[1], v_outer[0]) % (2*pi)
+            start_outer = (end_outer + delta_theta) % (2*pi)
         
         if d == 1:
-            start_inner = np.atan2(v_inner[1], v_inner[0]) % (2*np.pi)
-            end_inner = (start_inner + delta_theta) % (2*np.pi)
+            start_inner = atan2(v_inner[1], v_inner[0]) % (2*pi)
+            end_inner = (start_inner + delta_theta) % (2*pi)
 
-            start_outer = np.atan2(v_outer[1], v_outer[0]) % (2*np.pi)
-            end_outer = (start_outer + delta_theta) % (2*np.pi)
+            start_outer = atan2(v_outer[1], v_outer[0]) % (2*pi)
+            end_outer = (start_outer + delta_theta) % (2*pi)
         
         rs_inner = [c[0], c[1], r_inner, r, start_inner, end_inner]
         rs_outer = [c[0], c[1], r, r_outer, start_outer, end_outer]

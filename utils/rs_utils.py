@@ -1,21 +1,21 @@
-import numpy
+from math import cos, sin, atan2, pi, sqrt
 
 def M(theta):
     """
     Return the angle phi = theta mod (2 pi) such that -pi <= theta < pi.
     """
-    theta = theta % (2*numpy.pi)
-    if theta < -numpy.pi: return theta + 2*numpy.pi
-    if theta >= numpy.pi: return theta - 2*numpy.pi
+    theta = theta % (2*pi)
+    if theta < -pi: return theta + 2*pi
+    if theta >= pi: return theta - 2*pi
     return theta
 
 def cart2polar(x, y):
     """
     Return the polar coordinates (r, theta) of the point (x, y).
     """
-    r = numpy.sqrt(x*x + y*y)
+    r = sqrt(x*x + y*y)
     if r>0:
-        theta = numpy.atan2(y, x)
+        theta = atan2(y, x)
     else:
         theta = 0
     return r, theta
@@ -30,8 +30,8 @@ def change_of_basis(p1, p2, minRadius :float):
     theta1 = p1[2]
     dx = (p2[0] - p1[0])/minRadius
     dy = (p2[1] - p1[1])/minRadius
-    new_x = dx * numpy.cos(theta1) + dy * numpy.sin(theta1)
-    new_y = -dx * numpy.sin(theta1) + dy * numpy.cos(theta1)
+    new_x = dx * cos(theta1) + dy * sin(theta1)
+    new_y = -dx * sin(theta1) + dy * cos(theta1)
     new_theta = p2[2] - p1[2]
     return new_x, new_y, new_theta
 
@@ -53,8 +53,8 @@ def revert_change_of_basis(p1, local_p, minRadius: float):
     x_local, y_local, theta_local = local_p
     
     # Rotate the local coordinates back by -theta1 (inverse rotation)
-    dx_rotated = x_local * numpy.cos(theta1) - y_local * numpy.sin(theta1)
-    dy_rotated = x_local * numpy.sin(theta1) + y_local * numpy.cos(theta1)
+    dx_rotated = x_local * cos(theta1) - y_local * sin(theta1)
+    dy_rotated = x_local * sin(theta1) + y_local * cos(theta1)
     
     # Scale by minRadius and add the original translation (p1[0], p1[1])
     x_global = p1[0] + dx_rotated * minRadius
@@ -68,10 +68,10 @@ def revert_change_of_basis(p1, local_p, minRadius: float):
 
 
 def rad2deg(rad):
-    return 180 * rad / numpy.pi
+    return 180 * rad / pi
 
 def deg2rad(deg):
-    return numpy.pi * deg / 180
+    return pi * deg / 180
 
 def sign(x):
     return 1 if x >= 0 else -1

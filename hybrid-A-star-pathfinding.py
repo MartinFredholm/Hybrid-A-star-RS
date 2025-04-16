@@ -97,11 +97,11 @@ class HybridAstar:
         for m, phi in self.comb:
 
             # don't go back
-            if node.m and node.phi == phi and node.m*m == -1:
-                continue
+            # if node.m and node.phi == phi and node.m*m == -1:
+            #     continue
 
-            if node.m and node.m == 1 and m == -1:
-                continue
+            # if node.m and node.m == 1 and m == -1:
+            #     continue
 
             pos = node.pos
             branch = [m, pos[:2]]
