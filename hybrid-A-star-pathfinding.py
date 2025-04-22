@@ -56,8 +56,8 @@ class HybridAstar:
         
         self.w1 = 0.95 # weight for astar heuristic
         self.w2 = 0.05 # weight for simple heuristic
-        self.w3 = 0.30 # weight for extra cost of steering angle change
-        self.w4 = 0.10 # weight for extra cost of turning
+        self.w3 = 1.0 # weight for extra cost of steering angle change
+        self.w4 = 1.0 # weight for extra cost of turning
         self.w5 = 2.00 # weight for extra cost of reversing
 
         self.thetas = get_discretized_thetas(self.unit_theta)
@@ -387,7 +387,7 @@ def main_hybrid_a(heu,start_pos, end_pos,reverse, extra, grid_on):
         return _path, _carl, _path1, _car
 
     ani = animation.FuncAnimation(fig, animate, init_func=init, frames=len(path),
-                                interval=100, repeat=True, blit=True)
+                                interval=200, repeat=True, blit=True)
 
     # plt.show() 
 
@@ -495,6 +495,6 @@ if __name__ == '__main__':
     p.add_argument('-g', action='store_true', help='show grid or not')
     args = p.parse_args()
     start_pos = [0.3, 0.3, 0]      # Here defined initial position [x,y,angle]
-    end_pos = [3.7, 2.2, -pi/2]     # Target point [x,y, angle]
-    main_hybrid_a(args.heu,start_pos,end_pos,True,False,True)
+    end_pos = [4, 1.2, pi/2]  # Target point [x,y, angle]
+    main_hybrid_a(args.heu,start_pos,end_pos,True,True,True)
     print("An optimal path was computed using hybrid A* algorithm")
