@@ -431,7 +431,7 @@ def main_hybrid_a(heu,start_pos, end_pos,reverse, extra, grid_on):
     #                               interval=200, repeat=True, blit=True)
 
     
-    #plt.show()
+    # plt.show()
 
 class Node:
     """ Hybrid A* tree node. """
@@ -497,7 +497,7 @@ if __name__ == '__main__':
     p.add_argument('-e', action='store_true', help='add extra cost or not')
     p.add_argument('-g', action='store_true', help='show grid or not')
     args = p.parse_args()
-    start_pos = [0.3, 0.3, 0]      # Here defined initial position [x,y,angle]
-    end_pos = [4, 1.2, pi/2]  # Target point [x,y, angle]
+    start_pos = [0.4, 0.3, 0]      # Here defined initial position [x,y,angle]
+    end_pos = [1.7, 0.3, pi/2]  # Target point [x,y, angle]
     main_hybrid_a(args.heu,start_pos,end_pos,True,True,True)
     print("An optimal path was computed using hybrid A* algorithm")
